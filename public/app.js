@@ -387,7 +387,13 @@ async function showTrackerDetails(tracker, preloadedSolds = null) {
   }
 
   if (!solds || solds.length === 0) {
-    modalSoldTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No recent transactions found on eBay for this keyword.</td></tr>`;
+    modalStatMarket.textContent = "N/A";
+    modalStatSolds.textContent = "0 listings found";
+    modalSoldTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-secondary);">No recent transactions found on eBay for this keyword. Try switching to Mock Mode if live queries are blocked.</td></tr>`;
+    if (priceChart) {
+      priceChart.destroy();
+      priceChart = null;
+    }
     return;
   }
 

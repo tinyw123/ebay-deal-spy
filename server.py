@@ -61,13 +61,21 @@ for tracker in trackers:
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 def http_get(url):
-    """Perform a web request with standard headers."""
+    """Perform a web request with full browser headers and cookie handling."""
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": USER_AGENT, "Accept-Language": "en-US,en;q=0.9"}
+        headers={
+            "User-Agent": USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "en-GB,en;q=0.9,en-US;q=0.8",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1"
+        }
     )
     try:
-        with urllib.request.urlopen(req, timeout=15) as response:
+        cookie_processor = urllib.request.HTTPCookieProcessor()
+        opener = urllib.request.build_opener(cookie_processor)
+        with opener.open(req, timeout=15) as response:
             return response.read().decode("utf-8", errors="ignore")
     except Exception as e:
         print(f"Error fetching url {url}: {e}")
@@ -98,12 +106,8 @@ def parse_shipping(shipping_str):
 def parse_ebay_html(html):
     """Parse listing items from eBay search result HTML using regex."""
     items = []
-    # Split the HTML page by the standard s-item class wrapper
-    chunks = html.split('class="s-item__wrapper')
-    if len(chunks) <= 1:
-        # Fallback to alternative class
-        chunks = html.split('class="s-item ')
-        
+    # Split the HTML page by the standard s-item class
+    chunks = html.split('class="s-item')
     # First chunk is the header/metadata, discard it
     for chunk in chunks[1:]:
         # Extract title
