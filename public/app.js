@@ -165,7 +165,7 @@ function renderTrackers() {
     const card = document.createElement("div");
     card.className = `tracker-card ${selectedTracker && selectedTracker.id === tracker.id ? 'selected' : ''}`;
     
-    const marketDisplay = tracker.market_price > 0 ? `$${tracker.market_price}` : "Calculating...";
+    const marketDisplay = tracker.market_price > 0 ? `£${tracker.market_price}` : "Calculating...";
     const badgeClass = tracker.mode === "live" ? "badge-live" : "badge-mock";
     
     card.innerHTML = `
@@ -243,14 +243,14 @@ function renderDeals() {
         <div class="deal-price-row">
           <div class="deal-price">
             <span class="label">Buy Cost</span>
-            <span class="val">$${deal.total.toFixed(2)}</span>
+            <span class="val">£${deal.total.toFixed(2)}</span>
           </div>
           <div class="deal-shipping">
-            + $${deal.shipping.toFixed(2)} ship
+            + £${deal.shipping.toFixed(2)} post
           </div>
           <div class="deal-market">
             <span class="label">Market Value</span>
-            <span class="val">$${deal.market_price.toFixed(2)}</span>
+            <span class="val">£${deal.market_price.toFixed(2)}</span>
           </div>
         </div>
         
@@ -358,7 +358,7 @@ async function showTrackerDetails(tracker, preloadedSolds = null) {
 
   modalTitle.textContent = `${escapeHTML(tracker.name)} Analysis`;
   modalStatKeyword.textContent = tracker.keyword;
-  modalStatMarket.textContent = tracker.market_price > 0 ? `$${tracker.market_price.toFixed(2)}` : "Analyzing...";
+  modalStatMarket.textContent = tracker.market_price > 0 ? `£${tracker.market_price.toFixed(2)}` : "Analyzing...";
   modalStatSolds.textContent = "Analyzing data...";
   modalSoldTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Loading statistical price logs...</td></tr>`;
   
@@ -378,7 +378,7 @@ async function showTrackerDetails(tracker, preloadedSolds = null) {
         solds = result.results.sold_listings;
         
         // Update price label since scan recalculated it
-        modalStatMarket.textContent = `$${result.tracker.market_price.toFixed(2)}`;
+        modalStatMarket.textContent = `£${result.tracker.market_price.toFixed(2)}`;
       }
     } catch (e) {
       modalSoldTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--accent-rose);">Failed to pull price logs from eBay.</td></tr>`;
@@ -399,9 +399,9 @@ async function showTrackerDetails(tracker, preloadedSolds = null) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td title="${escapeHTML(item.title)}">${escapeHTML(item.title)}</td>
-      <td class="text-right">$${item.price.toFixed(2)}</td>
-      <td class="text-right">${item.shipping > 0 ? '$' + item.shipping.toFixed(2) : 'Free'}</td>
-      <td class="text-right" style="font-weight: 600;">$${item.total.toFixed(2)}</td>
+      <td class="text-right">£${item.price.toFixed(2)}</td>
+      <td class="text-right">${item.shipping > 0 ? '£' + item.shipping.toFixed(2) : 'Free'}</td>
+      <td class="text-right" style="font-weight: 600;">£${item.total.toFixed(2)}</td>
     `;
     modalSoldTableBody.appendChild(tr);
   });
@@ -430,7 +430,7 @@ function renderChart(solds, marketPrice) {
   for (let i = 0; i < binCount; i++) {
     const start = min + i * step;
     const end = start + step;
-    labels.push(`$${Math.round(start)}-${Math.round(end)}`);
+    labels.push(`£${Math.round(start)}-£${Math.round(end)}`);
   }
 
   totals.forEach(val => {

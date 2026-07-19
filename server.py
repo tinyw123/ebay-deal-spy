@@ -90,7 +90,7 @@ def parse_shipping(shipping_str):
     s_lower = shipping_str.lower()
     if "free" in s_lower:
         return 0.0
-    match = re.search(r"\+?\$([0-9,]+\.[0-9]{2})", shipping_str)
+    match = re.search(r"\+?(?:\$|£|\u00a3)?\s*([0-9,]+\.[0-9]{2})", shipping_str)
     if match:
         return float(match.group(1).replace(",", ""))
     return 0.0
@@ -125,7 +125,7 @@ def parse_ebay_html(html):
             link = link.split("?")[0]
             
         # Extract price
-        price_match = re.search(r'class="s-item__price"[^>]*>.*?\$([0-9,]+\.[0-9]{2})', chunk)
+        price_match = re.search(r'class="s-item__price"[^>]*>.*?(?:\$|£|\u00a3)\s*([0-9,]+\.[0-9]{2})', chunk)
         price = float(price_match.group(1).replace(",", "")) if price_match else 0.0
         
         # Extract shipping
@@ -225,7 +225,7 @@ def generate_mock_sold_items(keyword):
             "price": price,
             "shipping": shipping,
             "total": price + shipping,
-            "url": "https://www.ebay.com/itm/mock-sold-listing",
+            "url": "https://www.ebay.co.uk/itm/mock-sold-listing",
             "image": "https://picsum.photos/200/150?random=" + str(random.randint(1, 1000))
         })
         
@@ -236,7 +236,7 @@ def generate_mock_sold_items(keyword):
         "price": round(base * 0.08, 2),
         "shipping": 4.99,
         "total": round(base * 0.08 + 4.99, 2),
-        "url": "https://www.ebay.com/itm/mock-sold-outlier-low",
+        "url": "https://www.ebay.co.uk/itm/mock-sold-outlier-low",
         "image": ""
     })
     # 2. High price bundle outlier
@@ -245,7 +245,7 @@ def generate_mock_sold_items(keyword):
         "price": round(base * 2.8, 2),
         "shipping": 25.00,
         "total": round(base * 2.8 + 25.00, 2),
-        "url": "https://www.ebay.com/itm/mock-sold-outlier-high",
+        "url": "https://www.ebay.co.uk/itm/mock-sold-outlier-high",
         "image": ""
     })
     
@@ -268,7 +268,7 @@ def generate_mock_active_items(keyword, market_price, trigger_deal=False):
             "price": price,
             "shipping": shipping,
             "total": price + shipping,
-            "url": "https://www.ebay.com/itm/mock-active-listing",
+            "url": "https://www.ebay.co.uk/itm/mock-active-listing",
             "image": "https://picsum.photos/200/150?random=" + str(random.randint(1, 1000))
         })
         
@@ -283,7 +283,7 @@ def generate_mock_active_items(keyword, market_price, trigger_deal=False):
             "price": price,
             "shipping": shipping,
             "total": price + shipping,
-            "url": "https://www.ebay.com/itm/mock-active-deal",
+            "url": "https://www.ebay.co.uk/itm/mock-active-deal",
             "image": "https://picsum.photos/200/150?random=" + str(random.randint(1, 1000))
         })
         
@@ -304,13 +304,13 @@ def run_tracker_scan(tracker, trigger_deal=False):
     
     if mode == "live":
         # 1. Fetch Sold Listings to establish Market Price
-        sold_url = f"https://www.ebay.com/sch/i.html?_nkw={urllib.parse.quote(keyword)}&LH_Sold=1&LH_Complete=1&_ipg=60"
+        sold_url = f"https://www.ebay.co.uk/sch/i.html?_nkw={urllib.parse.quote(keyword)}&LH_Sold=1&LH_Complete=1&_ipg=60"
         html = http_get(sold_url)
         if html:
             sold_items = parse_ebay_html(html)
             
         # 2. Fetch Active Listings
-        active_url = f"https://www.ebay.com/sch/i.html?_nkw={urllib.parse.quote(keyword)}&_sop=10"
+        active_url = f"https://www.ebay.co.uk/sch/i.html?_nkw={urllib.parse.quote(keyword)}&_sop=10"
         html_active = http_get(active_url)
         if html_active:
             active_items = parse_ebay_html(html_active)
