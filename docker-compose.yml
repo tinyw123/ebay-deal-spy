@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  dealspy:
+    build: .
+    container_name: dealspy
+    ports:
+      # Map host port 8000 to container port 8000.
+      # You can change the first "8000" if you have a port conflict on your NAS.
+      - "8000:8000"
+    volumes:
+      # Persistent mount for database files (trackers.json, deals.json)
+      - ./data:/app/data
+    restart: unless-stopped

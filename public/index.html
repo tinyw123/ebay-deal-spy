@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DealSpy - eBay Resale Monitor & Arbitrage Finder</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="glass-app">
+    <!-- Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <div class="radar-dot active"></div>
+        <h1>DealSpy</h1>
+        <span class="badge badge-accent">eBay Engine v1.0</span>
+      </div>
+      <div class="status-panel">
+        <div class="status-stat">
+          <span class="label">Scanner Status</span>
+          <span class="value text-success" id="scanner-status">Active</span>
+        </div>
+        <div class="status-stat">
+          <span class="label">Trackers</span>
+          <span class="value" id="total-trackers">0</span>
+        </div>
+        <div class="status-stat">
+          <span class="label">Deals Spotted</span>
+          <span class="value text-accent" id="total-deals">0</span>
+        </div>
+        <button id="toggle-audio-btn" class="btn btn-secondary icon-btn" title="Toggle Sound Notifications">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3v18c-4.97 0-9-4.03-9-9s4.03-9 9-9zm4 3.82V17.2c2.28-.94 4-3.18 4-5.8 0-2.62-1.72-4.86-4-5.58z"/></svg>
+          <span id="audio-status-txt">Sound On</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <div class="workspace-grid">
+      
+      <!-- Left Panel: Control Center -->
+      <aside class="control-panel">
+        <!-- New Tracker Form -->
+        <section class="panel-section glass-card">
+          <h2>Create Tracker</h2>
+          <form id="tracker-form">
+            <div class="form-group">
+              <label for="tracker-name">Tracker Name</label>
+              <input type="text" id="tracker-name" placeholder="e.g. PS5 Console" required autocomplete="off">
+            </div>
+            
+            <div class="form-group">
+              <label for="tracker-keyword">eBay Search Keyword</label>
+              <input type="text" id="tracker-keyword" placeholder="e.g. playstation 5 digital console" required autocomplete="off">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="tracker-discount">Min Discount %</label>
+                <div class="discount-input-container">
+                  <input type="range" id="tracker-discount" min="5" max="80" value="20" class="slider">
+                  <span id="discount-val">20%</span>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="tracker-mode">Scanner Mode</label>
+                <select id="tracker-mode">
+                  <option value="mock">(Recommended) Mock Simulator</option>
+                  <option value="live">Live Web Scraper</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="tracker-interval">Check Frequency</label>
+              <select id="tracker-interval">
+                <option value="60">Every 1 Minute</option>
+                <option value="300" selected>Every 5 Minutes</option>
+                <option value="600">Every 10 Minutes</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+              <svg class="icon mr-1" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              Initialize Tracker
+            </button>
+          </form>
+        </section>
+
+        <!-- Tracker List -->
+        <section class="panel-section glass-card flex-grow scrollable-section">
+          <h2>Monitored Items</h2>
+          <div id="trackers-list" class="trackers-container">
+            <!-- Dynamic trackers rendered here -->
+            <div class="empty-state">
+              <p>No active trackers. Add one above to start monitoring.</p>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right Panel: Spotted Deals Feed -->
+      <main class="deals-panel glass-card">
+        <div class="deals-header">
+          <h2>Spotted Arbitrage Feed</h2>
+          <div class="deals-filters">
+            <span class="feed-badge text-accent" id="new-deals-alert" style="display: none;">New Deals Spotted!</span>
+          </div>
+        </div>
+
+        <div id="deals-feed" class="deals-container scrollable-section">
+          <!-- Dynamic deals rendered here -->
+          <div class="deals-empty-state">
+            <div class="radar-scan">
+              <div class="radar-line"></div>
+            </div>
+            <h3>Monitoring Market Listings...</h3>
+            <p>Deals matching your tracking criteria will appear here in real-time.</p>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Tracker Details & Price Distribution Modal -->
+  <div id="details-modal" class="modal">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2 id="modal-tracker-title">Tracker Details</h2>
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- Summary Stats Grid -->
+        <div class="modal-stats-grid">
+          <div class="modal-stat">
+            <span class="label">Keyword</span>
+            <span class="value" id="modal-stat-keyword">--</span>
+          </div>
+          <div class="modal-stat">
+            <span class="label">Calculated Market Price</span>
+            <span class="value text-success" id="modal-stat-market">--</span>
+          </div>
+          <div class="modal-stat font-small">
+            <span class="label">Sold Count Analyzed</span>
+            <span class="value" id="modal-stat-solds">0 listings</span>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="chart-container">
+          <h3>Recent Sold Price Distribution</h3>
+          <p class="chart-subtitle">Outlier listings outside typical bounds are automatically excluded</p>
+          <canvas id="price-distribution-chart"></canvas>
+        </div>
+
+        <!-- Sold Listings List -->
+        <div class="sold-listings-container">
+          <h3>Sample Sold Listings Scraped</h3>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sold Listing Title</th>
+                  <th class="text-right">Price</th>
+                  <th class="text-right">Shipping</th>
+                  <th class="text-right">Total Cost</th>
+                </tr>
+              </thead>
+              <tbody id="modal-sold-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

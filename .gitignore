@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local Databases (do not commit tracked items and deals)
+data/
+*.json
+
+# Operating System files
+.DS_Store
+Thumbs.db
